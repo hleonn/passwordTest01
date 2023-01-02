@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+
+  <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"
+      integrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+  <style>
+  ::before,
+      ::after {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+
+  .container{
+    display:flex;
+    flex-direction:column;
+    width:min(90%,300px);
+    font-family:sans-serif;
+    position:relative;
+  }
+
+  label{
+    font-size:1.15rem;
+    margin-bottom:0.5em;
+  }
+
+#password-field{
+  height:35px;
+  font-size:1.15rem;
+  padding:0.85em;
+  letter-spacing:3px;
+  border-radius:0.25em;
+}
+
+.hide{
+  display:none;
+}
+
+.icon{
+  position:absolute;
+  right:0;
+  top:2.5em;
+  cursor:pointer;
+}
+
+.icon i{
+  position:absolute;
+  right:0.5em;
+}
+
+.validation-checks {
+  margin:1em 0;
+  padding:1em 1em 1em 2em;
+  box-shadow:0 0 2px #708090;
+  background-color:#301934;
+  border-radius:0.65em;
+  transition:all 300ms ease-in;
+}
+
+.validation-checks ul{
+  list-style-type: none;
+}
+
+.validation-checks li{
+  position:relative;
+  margin:0.45em 0;
+  transition:all 150ms ease-in;
+  color:#708090;
+  font-weight:400;
+}
+
+.validation-checks li::before{
+  content:"";
+  position:absolute;
+  width:0.5em;
+  height:0.5em;
+  border-radius:50%;
+  background-color:#708090;
+  outline:1px solid #708090;
+  outline-offset:2px;
+  left:-1em;
+  top:50%;
+  transform:translateY(-50%);
+  transition:inherit;
+}
+.validation-checks li.checked::before{
+  background-color:#0bda51;
+  outline:2px solid #0bda51;
+  outline-offset:0;
+}
+
+.validation-checks li.checked{
+  color:#50c878;
+  font-weight:700;
+}
+
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <label for="password-field">Password</label>
+    <input type="password" id="password-field"/>
+    <div class="icon">
+      <i class="fa-solid fa-eye-slash"></i>
+      <i class="fa-solid fa-eye-hide"></i>
+    </div>
+    <div class="validation-checks hide">
+      <ul class="checklist">
+        <li>Lower-case letter</li>
+        <li>Upper-case letter</li>
+        <li>Number</li>
+        <li>More than 8 characters</li>
+      </ul>
+    </div>
+
+  </div>
+  <script>
+  let icon=document.querySelector(".icon");
+
+  let show=true;
+  icon.addEventListener("click",()=>{
+    if (show){
+      passwordField.type="text";
+      show=false;
+    }else{
+      passwordField.type="password";
+      show=true;
+    }
+icon.querySelector(".fa-eye").classList.toggle("hide");
+icon.querySelector(".fa-eye-slash").classList.toggle("hide");
+  });
+let validationBox = document.querySelector(".validation-checks");
+let passwordField = document.getElementById("password-field");
+let checklist =document
+.querySelector(".checklist")
+.getElementsByTagName("li");
+
+let lowerCount = 0, numberCount=0, upperCount=0;
+
+//focus and focusout events
+passwordField.addEventListener("focus",()=>{
+  validationBox.classList.remove("hide");
+});
+passwordField.addEventListener("focusout",()=>{
+  validationBox.classList.add("hide");
+});
+
+passwordField.addEventListener("input",()=>{
+let value= passwordField.value.trim();
+let lastCharacter = value.slice(value.length - 1);
+let index = checkLastCharacter(lastCharacter);
+
+if(value.length !=0){
+  checklist[index].classList.add("checked");
+  passwordField.addEventListener("keydown",uncheckConditions);
+}else{
+  passwordField.removeEventListener("keydown",uncheckConditions);
+  resetValues();
+}
+
+//checking for minimum 8 letters
+if (value.length >=8) {
+  checklist[3].classList.add("checked");
+} else {
+  checklist[3].classList.remove("checked");
+}
+
+});
+
+
+function uncheckConditions(event){
+  let value=passwordField.value.trim();
+  let index = checkLastCharacter(value.slice(value.length-1));
+
+if (event.key == "Backspace") {
+decrementCount(index);
+checkCount();  
+} else {
+  incrementCount(index);
+  
+}
+}
+
+
+function checkLastCharacter(lastCharacter){
+  //checking for number
+if (!Number.isNaN(Number(lastCharacter))) {
+  return 2;
+
+  //checking for upper case letters
+} else if (lastCharacter === lastCharacter.toUpperCase()){
+  return 1;
+
+  //checking for lower case letters
+}else if (lastCharacter === lastCharacter.toLowerCase()){
+  return 0;
+}
+  
+function incrementCount (index){
+  switch (index){
+    case 0:lowerCount++;
+    break;
+    case 1:upperCount++;
+    break;
+    case 2:numberCount++;
+    break;
+  }
+}
+
+function decrementCount (index){
+  switch (index){
+    case 0:lowerCount--;
+    break;
+    case 1:upperCount--;
+    break;
+    case 2:numberCount--;
+    break;
+  }
+}
+}
+
+function checkCount(){
+  if (lowerCount<=1) {
+    checklist[0].classList.remove("checked");
+    lowerCount=0;
+  }
+  if (upperCount<=1) {
+    checklist[1].classList.remove("checked");
+    upperCount=0;
+  }
+  if (numberCount<=1) {
+    checklist[2].classList.remove("checked");
+    numberCount=0;
+  }
+}
+
+function resetValues(){
+  lowerCount = 0;
+  upperCount = 0;
+  numberCount = 0;
+
+  for(let i=0; i<checklist.length;i++){
+    checklist[i].classList.remove("checked");
+  }
+}
+
+  </script>
+</body>
+</html>
